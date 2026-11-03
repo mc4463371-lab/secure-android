@@ -1,4 +1,4 @@
-hi# secure-android
+tohi# secure-android
 security for android
 androidx.biometric.BiometricPromptandroidx.core.content.ContextCompatimport androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -114,6 +114,23 @@ class MainActivity : AppCompatActivity() {
         try {
             startActivity(Intent(Settings.ACTION_VPN_SETTINGS))
         } catch (_: ActivityNotFoundException) {
+            startActivity(Intent(Settings.ACTION_SETTINGS))
+        }
+    }
+}
+import android.content.Intent
+import android.provider.Settings
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    fun openDeveloperOptions() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+
+        try {
+            startActivity(intent)
+        } catch (_: Exception) {
+            // Fallback if the device doesn't expose the Developer options screen directly
             startActivity(Intent(Settings.ACTION_SETTINGS))
         }
     }
