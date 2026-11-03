@@ -104,3 +104,17 @@ class MainActivity : AppCompatActivity() {
         // Launch your secure activity or content here
     }
 }
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.provider.Settings
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    fun openVpnSettings() {
+        try {
+            startActivity(Intent(Settings.ACTION_VPN_SETTINGS))
+        } catch (_: ActivityNotFoundException) {
+            startActivity(Intent(Settings.ACTION_SETTINGS))
+        }
+    }
+}
