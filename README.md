@@ -135,3 +135,51 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.Context
+import android.hardware.display.DisplayManager
+import android.provider.Settings
+import android.view.Display
+import android.view.accessibility.AccessibilityManager
+
+data class SecuritySnapshot(
+    val enabledAccessibilityServices: List<String>,
+    val nonDefaultDisplays: List<String>,
+    val adbDebuggingEnabled: Boolean?
+)
+
+fun inspectDevice(context: Context): SecuritySnapshot {
+    val accessibilityManager =
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+
+    val services = accessibilityManager
+        .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+        .map { it.id }
+
+    val displayManager =
+        context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+
+    val extraDisplays = displayManager.displays
+        .filter { it.displayId != Display.DEFAULT_DISPLAY }
+        .map { display ->
+            val presentation =
+                display.flags and Display.FLAG_PRESENTATION != 0
+            "${display.name} (id=${display.displayId}, presentation=$presentation)"
+        }
+
+    val adbEnabled = try {
+        Settings.Global.getInt(
+            context.contentResolver,
+            Settings.Global.ADB_ENABLED,
+            0
+        ) == 1
+    } catch (_: Exception) {
+        null // The setting couldn't be read.
+    }
+
+    return SecuritySnapshot(
+        enabledAccessibilityServices = services,
+        nonDefaultDisplays = extraDisplays,
+        adbDebuggingEnabled = adbEnabled
+    )
+}
