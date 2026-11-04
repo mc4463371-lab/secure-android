@@ -183,3 +183,43 @@ fun inspectDevice(context: Context): SecuritySnapshot {
         adbDebuggingEnabled = adbEnabled
     )
 }
+import android.app.Activity
+import android.os.Bundle
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
+
+class MainActivity : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val report = TextView(this).apply {
+            text = "Tap Check to inspect the device."
+            textSize = 16f
+        }
+
+        val checkButton = Button(this).apply {
+            text = "Check device"
+            setOnClickListener {
+                val result = inspectDevice(this@MainActivity)
+                report.text = """
+                    Enabled accessibility services:
+                    ${result.enabledAccessibilityServices.ifEmpty { listOf("None reported") }.joinToString("\n")}
+
+                    Non-default displays:
+                    ${result.nonDefaultDisplays.ifEmpty { listOf("None reported") }.joinToString("\n")}
+
+                    ADB debugging enabled:
+                    ${result.adbDebuggingEnabled ?: "Could not read setting"}
+                """.trimIndent()
+            }
+        }
+
+        setContentView(LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(32, 32, 32, 32)
+            addView(checkButton)
+            addView(report)
+        })
+    }
+}
